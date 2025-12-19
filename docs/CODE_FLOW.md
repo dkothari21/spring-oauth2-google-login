@@ -42,7 +42,7 @@ After the guard lets you through, you try to open a specific door (URL).
 
 ```mermaid
 graph TD
-    User[User Request] --> Filter[JwtAuthFilter (The Guard)]
+    User[User Request] --> Filter["JwtAuthFilter (The Guard)"]
     
     Filter -- Has Cookie? --> Token{Valid Token?}
     Token -- Yes --> Identity[Set User Identity]
@@ -50,7 +50,7 @@ graph TD
     Anonymous --> Router
     Identity --> Router
     
-    Router[SecurityConfig (The Door)]
+    Router["SecurityConfig (The Door)"]
     
     Router -- Visiting Home Page --> Allowed[Access Granted]
     Router -- Visiting API --> Check{Is User Logged In?}
