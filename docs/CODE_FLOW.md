@@ -22,18 +22,18 @@ Security is split into two parts: **The Guard** (Filter) and **The Door** (Confi
 Imagine a security guard at the building's main entrance.
 *   **Action**: The guard stops **every single request**—whether you are going to the lobby (Public) or the CEO's office (Private).
 *   **Check**: The guard asks, *"Do you have a cookie badge?"*
-    *   **Yes**: "Okay, I see you are **User: Dip**. You may proceed."
+    *   **Yes**: "Okay, I see you are **User: Alice**. You may proceed."
     *   **No**: "Okay, I don't know you. You are **Guest**. You may proceed."
 
 ### Part B: The Door (SecurityConfig)
 After the guard lets you through, you try to open a specific door (URL).
 *   **Public Room (e.g., Home Page `/`)**:
     *   The sign says: **"Everyone Welcome"** (`.permitAll()`).
-    *   **Result**: Both **Dip** and **Guest** can enter.
+    *   **Result**: Both **Alice** and **Guest** can enter.
 *   **Private Room (e.g., `/api/hello`)**:
     *   The sign says: **"Authorized Personnel Only"** (`.authenticated()`).
     *   **Result**:
-        *   **Dip** enters successfully.
+        *   **Alice** enters successfully.
         *   **Guest** is stopped by the lock (403 Forbidden Error).
 
 ---
