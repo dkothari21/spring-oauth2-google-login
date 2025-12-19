@@ -1,0 +1,10 @@
+# Prevent accidental commit of secrets
+.env linguist-generated=true
+*.env linguist-generated=true
+
+# Mark documentation as documentation
+*.md linguist-documentation
+
+# Mark configuration files
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML

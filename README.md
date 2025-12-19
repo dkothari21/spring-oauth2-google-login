@@ -1,0 +1,217 @@
+# Google OAuth2 Spring Boot Application
+
+A Spring Boot application demonstrating Google OAuth2 authentication with Swagger/OpenAPI integration for easy API testing.
+
+## 🎯 Features
+
+- ✅ Google OAuth2 authentication (OIDC)
+- ✅ Protected API endpoints (`/api/**`)
+- ✅ Swagger UI for interactive API testing
+- ✅ JWT token handling (automatic)
+- ✅ User information extraction from Google
+
+## 📋 Prerequisites
+
+- Java 17 or higher
+- Gradle 7.x or higher
+- A Google Cloud Console account
+
+## 🔧 Setup Instructions
+
+### 1. Create Google OAuth2 Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select an existing one)
+3. Navigate to **APIs & Services** → **Credentials**
+4. Click **Create Credentials** → **OAuth Client ID**
+5. Select **Web Application**
+6. Add the following to **Authorized Redirect URIs**:
+   ```
+   http://localhost:8080/login/oauth2/code/google
+   ```
+7. Click **Create** and save your:
+   - **Client ID**
+   - **Client Secret**
+
+### 2. Configure the Application
+
+You have two options to provide your Google credentials:
+
+#### Option A: Use .env File (Easiest for Local Development)
+```bash
+# Create .env file from example
+cp .env.example .env
+
+# Edit .env and add your credentials
+# GOOGLE_CLIENT_ID=your-client-id-here
+# GOOGLE_CLIENT_SECRET=your-client-secret-here
+```
+
+Then just run:
+```bash
+./run.sh
+```
+
+The script will automatically load your credentials! 🎉
+
+#### Option B: Environment Variables
+```bash
+export GOOGLE_CLIENT_ID="your-client-id-here"
+export GOOGLE_CLIENT_SECRET="your-client-secret-here"
+```
+
+⚠️ **Important**: Never commit your `.env` file or actual credentials to version control!
+
+**See [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md) for detailed local development setup.**
+
+### 3. Run the Application
+
+**Option A: Using the helper script (loads .env automatically)**
+```bash
+./run.sh
+```
+
+**Option B: Using Gradle directly**
+```bash
+./gradlew bootRun
+```
+
+The application will start on `http://localhost:8080`
+
+## 🧪 Testing the Application
+
+### Quick Start
+
+**See the complete testing guide:** [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+
+### Step-by-Step Testing Flow
+
+1. **Visit the Login Page**:
+   - Open: `http://localhost:8080/`
+   - You'll see a simple login page with "Sign in with Google" button
+
+2. **Authenticate with Google**:
+   - Click "Sign in with Google"
+   - Select your Google account
+   - Grant the requested permissions (openid, profile, email)
+   - You'll be redirected to Swagger UI
+
+3. **Test the API in Swagger**:
+   - You're now at: `http://localhost:8080/swagger-ui/index.html`
+   - Your session is authenticated!
+   - Expand **GET /api/hello**
+   - Click **"Try it out"**
+   - Click **"Execute"**
+
+4. **View the Results**:
+   - You should see a `200 OK` response
+   - The response body will contain your Google profile information:
+     ```json
+     {
+       "message": "Hello, Your Name!",
+       "email": "your-email@gmail.com",
+       "name": "Your Name",
+       "picture": "https://...",
+       "authenticated": true
+     }
+     ```
+
+5. **Logout** (Important!):
+   - Open a **new browser tab**
+   - Visit: `http://localhost:8080/api/logout`
+   - You'll be redirected to the login page
+   - Session is cleared!
+
+**Note**: Don't try to logout from Swagger - it won't work! Always visit the logout URL directly in your browser.
+
+## 📚 API Endpoints
+
+### Protected Endpoints (Require Authentication)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/hello` | Get a personalized greeting |
+| GET | `/api/user` | Get full user details from Google |
+
+### Public Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/swagger-ui/index.html` | Swagger UI interface |
+| GET | `/v3/api-docs` | OpenAPI specification |
+
+## 🔐 How It Works
+
+### The Authentication Flow
+
+1. **User visits login URL** → `/oauth2/authorization/google`
+2. **Spring Security redirects to Google** → User sees Google login page
+3. **User logs in with Google** → Google validates credentials
+4. **Google redirects back** → To `/login/oauth2/code/google` with authorization code
+5. **Spring Security exchanges code for tokens** → Server-side, secure!
+6. **User information is fetched** → From Google's UserInfo endpoint
+7. **Session is created** → User is now authenticated
+8. **API calls work** → Session cookie automatically included
+
+**See detailed diagrams:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+### Key Components
+
+- **`SecurityConfig.java`**: Defines which endpoints require authentication
+- **`OpenApiConfig.java`**: Provides authentication instructions in Swagger
+- **`HelloController.java`**: Demonstrates `@AuthenticationPrincipal` usage
+- **`application.yml`**: Contains OAuth2 client configuration
+
+### The Magic of @AuthenticationPrincipal
+
+```java
+public Map<String, Object> hello(@AuthenticationPrincipal OAuth2User principal) {
+    // Spring Boot automatically injects the authenticated user here!
+    String name = principal.getAttribute("name");
+    String email = principal.getAttribute("email");
+    // ...
+}
+```
+
+## 🎓 What You're Learning
+
+✅ **OAuth2 & OIDC**: Industry-standard authentication protocols  
+✅ **JWT Tokens**: Automatic token handling by Spring Security  
+✅ **Spring Security**: Protecting endpoints and managing authentication  
+✅ **Swagger/OpenAPI**: Interactive API documentation and testing  
+✅ **Dependency Injection**: How Spring Boot wires everything together  
+
+## 🐛 Troubleshooting
+
+### "401 Unauthorized" Error
+- Make sure you clicked "Authorize" in Swagger UI
+- Verify you completed the Google login flow
+- Check that your session hasn't expired
+
+### "redirect_uri_mismatch" Error
+- Verify the redirect URI in Google Console exactly matches:
+  ```
+  http://localhost:8080/login/oauth2/code/google
+  ```
+- No trailing slashes or extra characters
+
+### Application Won't Start
+- Verify your `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set
+- Check that port 8080 is not already in use
+- Review the console logs for specific error messages
+
+## 📖 Documentation
+
+- **[docs/GOOGLE_SETUP.md](docs/GOOGLE_SETUP.md)** - Google Console setup guide
+- **[docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)** - Testing & troubleshooting
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Technical deep dive with Mermaid diagrams
+
+### External Resources
+
+- [Spring Security OAuth2 Documentation](https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html)
+- [Google OAuth2 Documentation](https://developers.google.com/identity/protocols/oauth2)
+- [SpringDoc OpenAPI Documentation](https://springdoc.org/)
+
+## 📝 License
+
+This project is open source and available under the MIT License.

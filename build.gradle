@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Web - For REST API endpoints
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // Spring Security - For authentication and authorization
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    // OAuth2 Client - For "Log in with Google" functionality
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    
+    // SpringDoc OpenAPI (Swagger) - For API testing UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
