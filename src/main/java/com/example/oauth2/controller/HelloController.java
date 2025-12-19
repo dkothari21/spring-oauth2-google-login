@@ -2,9 +2,9 @@ package com.example.oauth2.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,12 +53,20 @@ public class HelloController {
     }
 
     @GetMapping("/logout")
-    @Operation(summary = "Logout", description = "Clears session and redirects to login page. NOTE: Visit this URL directly in browser: http://localhost:8080/api/logout (won't work from Swagger)")
+    @Operation(summary = "Logout", description = "Clears JWT tokens and redirects to login")
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+        // Clear auth_token cookie
+        Cookie tokensCookie = new Cookie("auth_token", null);
+        tokensCookie.setMaxAge(0);
+        tokensCookie.setPath("/");
+        response.addCookie(tokensCookie);
+
+        // Clear session_id cookie
+        Cookie sessionCookie = new Cookie("session_id", null);
+        sessionCookie.setMaxAge(0);
+        sessionCookie.setPath("/");
+        response.addCookie(sessionCookie);
+
         response.sendRedirect("/");
     }
 }

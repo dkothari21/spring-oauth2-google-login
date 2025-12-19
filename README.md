@@ -82,76 +82,45 @@ The application will start on `http://localhost:8080`
 
 ### Quick Start
 
-**See the complete testing guide:** [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+1. **Start the application:**
+   ```bash
+   ./run.sh
+   ```
 
-### Step-by-Step Testing Flow
-
-1. **Visit the Login Page**:
-   - Open: `http://localhost:8080/`
-   - You'll see a simple login page with "Sign in with Google" button
-
-2. **Authenticate with Google**:
+2. **Login:**
+   - Visit: `http://localhost:8080/`
    - Click "Sign in with Google"
    - Select your Google account
-   - Grant the requested permissions (openid, profile, email)
-   - You'll be redirected to Swagger UI
+   - Grant permissions
 
-3. **Test the API in Swagger**:
-   - You're now at: `http://localhost:8080/swagger-ui/index.html`
-   - Your session is authenticated!
-   - Expand **GET /api/hello**
-   - Click **"Try it out"**
-   - Click **"Execute"**
+3. **Test APIs in Swagger:**
+   - After login, you'll be redirected to Swagger UI
+   - Try `GET /api/hello` - Returns personalized greeting
+   - Try `GET /api/user` - Returns your user profile
 
-4. **View the Results**:
-   - You should see a `200 OK` response
-   - The response body will contain your Google profile information:
-     ```json
-     {
-       "message": "Hello, Your Name!",
-       "email": "your-email@gmail.com",
-       "name": "Your Name",
-       "picture": "https://...",
-       "authenticated": true
-     }
-     ```
+4. **Check Cookies** (DevTools → Application → Cookies):
+   - `auth_token` - JWT token (URL-encoded JSON)
+   - `session_id` - Random session ID
 
-5. **Logout** (Important!):
-   - Open a **new browser tab**
+5. **Logout:**
    - Visit: `http://localhost:8080/api/logout`
-   - You'll be redirected to the login page
-   - Session is cleared!
-
-**Note**: Don't try to logout from Swagger - it won't work! Always visit the logout URL directly in your browser.
+   - Cookies cleared, redirected to login
 
 ## 📚 API Endpoints
 
-### Protected Endpoints (Require Authentication)
-
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/hello` | Get a personalized greeting |
-| GET | `/api/user` | Get full user details from Google |
-
-### Public Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/swagger-ui/index.html` | Swagger UI interface |
-| GET | `/v3/api-docs` | OpenAPI specification |
+| GET | `/api/hello` | Personalized greeting |
+| GET | `/api/user` | User profile from Google |
+| GET | `/api/logout` | Logout and clear cookies |
 
 ## 🔐 How It Works
 
-### The Authentication Flow
-
-1. **User visits login URL** → `/oauth2/authorization/google`
-2. **Spring Security redirects to Google** → User sees Google login page
-3. **User logs in with Google** → Google validates credentials
-4. **Google redirects back** → To `/login/oauth2/code/google` with authorization code
-5. **Spring Security exchanges code for tokens** → Server-side, secure!
-6. **User information is fetched** → From Google's UserInfo endpoint
-7. **Session is created** → User is now authenticated
-8. **API calls work** → Session cookie automatically included
+1. **OAuth2 Login** - Authenticate with Google
+2. **JWT Creation** - Create JWT from user data
+3. **Cookie Storage** - Store JWT in `auth_token` cookie
+4. **Stateless Auth** - Validate JWT on each request
+5. **Logout** - Clear cookies
 
 **See detailed diagrams:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 

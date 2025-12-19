@@ -53,62 +53,38 @@ graph TB
 
 ## OAuth2 & OIDC Flow
 
-### The Complete Authentication Journey
+### Authentication Flow
 
 ```mermaid
 sequenceDiagram
-    participant U as User (Browser)
-    participant LP as Login Page
-    participant S as Spring Boot App
-    participant G as Google OAuth2
-    participant UI as Google UserInfo API
+    participant Browser
+    participant App as Spring Boot
+    participant Google
     
-    Note over U,UI: Step 1: User Visits Login Page
-    U->>LP: Visit http://localhost:8080/
-    LP->>U: Show login page with Google button
+    Browser->>App: 1. Visit /
+    App->>Browser: Show login page
     
-    Note over U,UI: Step 2: User Initiates Login
-    U->>LP: Click "Sign in with Google"
-    LP->>S: Navigate to /oauth2/authorization/google
-    S->>S: Generate OAuth2 request
-    S->>U: Redirect to Google with prompt=select_account
+    Browser->>App: 2. Click "Sign in with Google"
+    App->>Browser: Redirect to Google
     
-    Note over U,UI: Step 3: Google Authentication
-    U->>G: GET /o/oauth2/v2/auth<br/>?client_id=...&redirect_uri=...&scope=openid+profile+email<br/>&prompt=select_account
-    G->>U: Show Account Selection Page
-    U->>G: Select account (user@example.com)
-    G->>U: Show Google Login Page (if needed)
-    U->>G: Enter credentials & grant permissions
+    Browser->>Google: 3. Login & grant permissions
+    Google->>Browser: Redirect with auth code
     
-    Note over U,UI: Step 4: Authorization Code Exchange
-    G->>U: Redirect with authorization code
-    U->>S: GET /login/oauth2/code/google?code=ABC123...
-    S->>G: POST /token<br/>code=ABC123&client_id=...&client_secret=...
-    G->>S: Return tokens<br/>{access_token, id_token (JWT), refresh_token}
+    Browser->>App: 4. Send auth code
+    App->>Google: Exchange code for tokens
+    Google->>App: Return access_token, id_token
     
-    Note over U,UI: Step 5: Fetch User Information
-    S->>UI: GET /oauth2/v3/userinfo<br/>Authorization: Bearer {access_token}
-    UI->>S: Return user data<br/>{sub, name, email, picture}
+    App->>App: 5. Create JWT from user data
+    App->>Browser: Set-Cookie: auth_token (JWT)
+    App->>Browser: Set-Cookie: session_id
+    App->>Browser: Redirect to Swagger UI
     
-    Note over U,UI: Step 6: Create Session
-    S->>S: Validate JWT (ID Token)
-    S->>S: Create OAuth2User object
-    S->>S: Store in session
-    S->>U: Set session cookie (JSESSIONID)
-    S->>U: Redirect to Swagger UI
+    Browser->>App: 6. GET /api/hello (Cookie: auth_token)
+    App->>App: Validate JWT
+    App->>Browser: Return user data
     
-    Note over U,UI: Step 7: Access Protected APIs
-    U->>S: GET /api/hello<br/>Cookie: JSESSIONID=...
-    S->>S: Validate session
-    S->>S: Extract OAuth2User from session
-    S->>S: Inject into @AuthenticationPrincipal
-    S->>U: Return personalized response
-    
-    Note over U,UI: Step 8: Logout
-    U->>S: Visit http://localhost:8080/api/logout
-    S->>S: Invalidate session
-    S->>U: Redirect to login page
-    U->>LP: Back to login page
+    Browser->>App: 7. GET /api/logout
+    App->>Browser: Clear cookies, redirect to login
 ```
 
 ### What is OIDC?
