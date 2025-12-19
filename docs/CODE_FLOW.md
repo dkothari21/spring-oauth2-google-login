@@ -30,7 +30,7 @@ After the guard lets you through, you try to open a specific door (URL).
 *   **Public Room (e.g., Home Page `/`)**:
     *   The sign says: **"Everyone Welcome"** (`.permitAll()`).
     *   **Result**: Both **Alice** and **Guest** can enter.
-*   **Private Room (e.g., `/api/hello`)**:
+*   **Private Room (e.g., `/api/hello`, `/swagger-ui`)**:
     *   The sign says: **"Authorized Personnel Only"** (`.authenticated()`).
     *   **Result**:
         *   **Alice** enters successfully.

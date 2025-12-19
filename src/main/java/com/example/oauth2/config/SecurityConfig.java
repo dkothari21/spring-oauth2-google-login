@@ -27,12 +27,8 @@ public class SecurityConfig {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/index.html", "/swagger-ui/**",
-                                                                "/v3/api-docs/**")
-                                                .permitAll()
-                                                .requestMatchers("/api/logout").permitAll()
-                                                .requestMatchers("/api/**").authenticated()
-                                                .anyRequest().permitAll())
+                                                .requestMatchers("/").permitAll()
+                                                .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .successHandler(oauth2SuccessHandler)
                                                 .authorizationEndpoint(authorization -> authorization
